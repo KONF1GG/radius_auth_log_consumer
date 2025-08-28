@@ -78,7 +78,7 @@ class DataValidator:
     """Валидатор данных для аутентификации"""
 
     # Поля таблицы radius.log_auth согласно схеме
-    AUTH_REQUIRED_FIELDS = {"username"}
+    AUTH_REQUIRED_FIELDS = set()  # Нет обязательных полей
 
     AUTH_STRING_FIELDS = {
         "username",
