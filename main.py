@@ -261,7 +261,6 @@ class RabbitConsumer:
         )
         ch.queue_bind("radius_log_dlq", "dlx", "dlq")
 
-        ch.exchange_declare("auth_log_exchange", "direct", durable=True)
         ch.queue_declare(
             self.queue,
             durable=True,
@@ -270,7 +269,7 @@ class RabbitConsumer:
                 "x-dead-letter-routing-key": "dlq",
             },
         )
-        ch.queue_bind(self.queue, "auth_log_exchange", self.queue)
+        ch.queue_bind(self.queue, "sessions_traffic_exchange", self.queue)
         ch.basic_qos(prefetch_count=int(config.PREFETCH_COUNT))
 
     def start(self) -> None:
