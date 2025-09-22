@@ -4,7 +4,6 @@ RabbitMQ consumer for ClickHouse auth logs
 
 import logging
 import signal
-import ssl
 import threading
 import time
 from typing import Any, Dict, List
@@ -81,6 +80,7 @@ class DataValidator:
     AUTH_REQUIRED_FIELDS = set()  # Нет обязательных полей
 
     AUTH_STRING_FIELDS = {
+        "login",
         "username",
         "password",
         "callingstationid",
@@ -90,11 +90,24 @@ class DataValidator:
         "pool",
         "agentremoteid",
         "agentcircuitid",
+        "nasportid",
+        "nasport",
+        "service_type",
+        "acct_session_id",
+        "framed_protocol",
+        "nas_identifier",
+        "nas_port_type",
+        "framed_ip",
+        "virtual_router",
+        "pppoe_description",
+        "dhcp_first_relay",
     }
 
     AUTH_DATETIME_FIELDS = {"authdate"}
 
     AUTH_FLOAT_FIELDS = {"speed", "uplink"}
+
+    AUTH_BOOLEAN_FIELDS = {"chap_auth"}
 
     @staticmethod
     def validate_auth_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -134,6 +147,13 @@ class DataValidator:
             else:
                 validated_data[field] = 0.0  # DEFAULT значение
 
+        # Валидация Boolean полей
+        for field in DataValidator.AUTH_BOOLEAN_FIELDS:
+            if field in data:
+                validated_data[field] = DataValidator._parse_boolean(field, data[field])
+            else:
+                validated_data[field] = 0  # DEFAULT значение для UInt8
+
         return validated_data
 
     @staticmethod
@@ -171,10 +191,28 @@ class DataValidator:
         except (ValueError, TypeError) as e:
             raise ValidationError(field, value, f"Cannot convert to Float: {e}")
 
+    @staticmethod
+    def _parse_boolean(field: str, value: Any) -> int:
+        """Парсинг Boolean значения в UInt8"""
+        if value is None or value == "":
+            return 0
 
-# Поля для аутентификации в правильном порядке
+        if isinstance(value, bool):
+            return 1 if value else 0
+
+        if isinstance(value, (int, float)):
+            return 1 if value else 0
+
+        if isinstance(value, str):
+            return 1 if value.lower() in ("true", "1", "yes", "on") else 0
+
+        raise ValidationError(field, value, f"Cannot convert to Boolean: {value}")
+
+
+# Поля для аутентификации в правильном порядке согласно схеме таблицы
 AUTH_FIELDS = [
     "authdate",
+    "login",
     "username",
     "password",
     "callingstationid",
@@ -186,6 +224,18 @@ AUTH_FIELDS = [
     "pool",
     "agentremoteid",
     "agentcircuitid",
+    "nasportid",
+    "nasport",
+    "service_type",
+    "acct_session_id",
+    "framed_protocol",
+    "chap_auth",
+    "nas_identifier",
+    "nas_port_type",
+    "framed_ip",
+    "virtual_router",
+    "pppoe_description",
+    "dhcp_first_relay",
 ]
 
 
@@ -201,6 +251,8 @@ def prepare_auth_row(validated_data: Dict[str, Any]) -> List[Any]:
                 row.append(datetime(1970, 1, 1, 5, 0, 0))
             elif field in DataValidator.AUTH_FLOAT_FIELDS:
                 row.append(0.0)
+            elif field in DataValidator.AUTH_BOOLEAN_FIELDS:
+                row.append(0)  # UInt8 для булевых полей
             elif field in DataValidator.AUTH_STRING_FIELDS:
                 row.append("")
             else:
@@ -217,6 +269,8 @@ def prepare_auth_row(validated_data: Dict[str, Any]) -> List[Any]:
                 row.append(value)
             elif field in DataValidator.AUTH_FLOAT_FIELDS:
                 row.append(float(value))
+            elif field in DataValidator.AUTH_BOOLEAN_FIELDS:
+                row.append(int(value))  # UInt8 для булевых полей
             else:
                 row.append(value)
         except (ValueError, TypeError) as e:
