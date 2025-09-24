@@ -98,6 +98,7 @@ class DataValidator:
         "nas_port_type",
         "pppoe_description",
         "dhcp_first_relay",
+        "psifaces_description",
     }
 
     AUTH_DATETIME_FIELDS = {"authdate"}
@@ -229,6 +230,7 @@ AUTH_FIELDS = [
     "nas_port_type",
     "pppoe_description",
     "dhcp_first_relay",
+    "psifaces_description",
 ]
 
 
