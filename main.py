@@ -267,6 +267,8 @@ def prepare_auth_row(validated_data: Dict[str, Any]) -> List[Any]:
                 row.append(0)  # UInt8 для булевых полей
             elif field in DataValidator.AUTH_STRING_FIELDS:
                 row.append("")
+            elif field in getattr(DataValidator, "AUTH_UNLIMITED_STRING_FIELDS", set()):
+                row.append("")
             else:
                 row.append(None)
             continue
