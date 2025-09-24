@@ -87,7 +87,6 @@ class DataValidator:
         "nasipaddress",
         "reply",
         "reason",
-        "pool",
         "agentremoteid",
         "agentcircuitid",
         "nasportid",
@@ -97,15 +96,13 @@ class DataValidator:
         "framed_protocol",
         "nas_identifier",
         "nas_port_type",
-        "framed_ip",
-        "virtual_router",
         "pppoe_description",
         "dhcp_first_relay",
     }
 
     AUTH_DATETIME_FIELDS = {"authdate"}
 
-    AUTH_FLOAT_FIELDS = {"speed", "uplink"}
+    AUTH_FLOAT_FIELDS = {"speed"}
 
     AUTH_BOOLEAN_FIELDS = {"chap_auth"}
 
@@ -220,8 +217,6 @@ AUTH_FIELDS = [
     "reply",
     "reason",
     "speed",
-    "uplink",
-    "pool",
     "agentremoteid",
     "agentcircuitid",
     "nasportid",
@@ -232,8 +227,6 @@ AUTH_FIELDS = [
     "chap_auth",
     "nas_identifier",
     "nas_port_type",
-    "framed_ip",
-    "virtual_router",
     "pppoe_description",
     "dhcp_first_relay",
 ]
