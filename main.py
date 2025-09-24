@@ -104,7 +104,7 @@ class DataValidator:
 
     # Поля-строки без обрезки
     AUTH_UNLIMITED_STRING_FIELDS = {
-        "auth_raw",
+        "auth_raw_pretty",
     }
 
     AUTH_DATETIME_FIELDS = {"authdate"}
@@ -247,7 +247,7 @@ AUTH_FIELDS = [
     "pppoe_description",
     "dhcp_first_relay",
     "psifaces_description",
-    "auth_raw",
+    "auth_raw_pretty",
 ]
 
 
