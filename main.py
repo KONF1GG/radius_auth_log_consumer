@@ -102,6 +102,11 @@ class DataValidator:
         "psifaces_description",
     }
 
+    # Поля-строки без обрезки
+    AUTH_UNLIMITED_STRING_FIELDS = {
+        "auth_raw",
+    }
+
     AUTH_DATETIME_FIELDS = {"authdate"}
 
     AUTH_FLOAT_FIELDS = {"speed"}
@@ -123,12 +128,21 @@ class DataValidator:
 
         validated_data = {}
 
-        # Валидация строковых полей
+        # Валидация строковых полей (с ограничением длины)
         for field in DataValidator.AUTH_STRING_FIELDS:
             if field in data:
                 value = data[field]
                 if value is not None:
                     validated_data[field] = str(value)[:255]  # Ограничиваем длину
+                else:
+                    validated_data[field] = ""
+
+        # Валидация неограниченных строковых полей (без обрезки)
+        for field in DataValidator.AUTH_UNLIMITED_STRING_FIELDS:
+            if field in data:
+                value = data[field]
+                if value is not None:
+                    validated_data[field] = str(value)
                 else:
                     validated_data[field] = ""
 
@@ -233,6 +247,7 @@ AUTH_FIELDS = [
     "pppoe_description",
     "dhcp_first_relay",
     "psifaces_description",
+    "auth_raw",
 ]
 
 
@@ -259,6 +274,8 @@ def prepare_auth_row(validated_data: Dict[str, Any]) -> List[Any]:
         # Явное преобразование типов
         try:
             if field in DataValidator.AUTH_STRING_FIELDS:
+                row.append(str(value))
+            elif field in DataValidator.AUTH_UNLIMITED_STRING_FIELDS:
                 row.append(str(value))
             elif field in DataValidator.AUTH_DATETIME_FIELDS:
                 if not isinstance(value, datetime):
